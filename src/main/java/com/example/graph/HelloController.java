@@ -26,6 +26,7 @@ public class HelloController {
     public void onVertexDrag(DragEvent e){
         double x = e.getSceneX();
         double y = e.getSceneY();
+        System.out.println(x + " " + y);
         NodeUI nodeUI = (NodeUI)e.getSource();
         nodeUI.n.setCoords((int)x,(int)y);
         updateNodesUI();
