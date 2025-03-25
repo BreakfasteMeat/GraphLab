@@ -2,7 +2,9 @@ package com.example.graph;
 
 import javafx.scene.shape.Line;
 
-public class EdgeUI extends Line {
+import java.io.Serializable;
+
+public class EdgeUI extends Line implements Serializable {
     Edge edge;
 
     public EdgeUI(Edge edge) {

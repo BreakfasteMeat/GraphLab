@@ -7,7 +7,7 @@ public class Edge implements Serializable {
     double end_x, end_y;
     Node from;
     Node to;
-    transient EdgeUI edgeUI;
+    EdgeUI edgeUI;
 
     public Edge(double start_x, double start_y, double end_x, double end_y, Node from, Node to) {
         this.start_x = start_x;

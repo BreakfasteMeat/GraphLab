@@ -106,6 +106,17 @@ public class HelloController {
             System.out.println(e.getClass());
             //e.printStackTrace();
         }
+        try{
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream("edges.txt"));
+            edges = (ArrayList<Edge>)(ois.readObject());
+            ois.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            System.out.println(e.getClass());
+        }
+        System.out.println(nodes.size());
+        System.out.println(edges.size());
         tfNodeName.textProperty().addListener((observable, oldValue, newValue) -> {
            if(newValue.length() > 1){
                tfNodeName.setText(oldValue);
@@ -149,6 +160,13 @@ public class HelloController {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+        try{
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("edges.txt"));
+            oos.writeObject(edges);
+            oos.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
 
         updateNodesUI();
     }
@@ -170,6 +188,7 @@ public class HelloController {
     }
     public void onClearClicked(ActionEvent event){
         nodes.clear();
+        edges.clear();
         apPane.getChildren().clear();
         updateNodesUI();
     }
@@ -180,13 +199,14 @@ public class HelloController {
         apPane.getChildren().clear();
 
         for (Edge edge : edges) {
+
             EdgeUI edgeUI = new EdgeUI(edge);
             edgeUIList.add(edgeUI);
             apPane.getChildren().add(edgeUI);
+            System.out.println("Added: "+edgeUI);
             edge.setEdgeUI(edgeUI);
         }
         for (Node node : nodes) {
-            System.out.println(node.x + "," + node.y);
             NodeUI nodeui = new NodeUI(node);
             nodeUIList.add(nodeui);
             setVertexDesign(nodeui,node);

@@ -6,12 +6,14 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observer;
 
-public class NodeUI extends StackPane{
-    Node n;
-    Circle c;
+public class NodeUI extends StackPane implements Serializable {
+    transient Node n;
+    transient Circle c;
 
     List<EdgeUI> edgesStart;
     List<EdgeUI> edgesEnd;
@@ -34,17 +36,19 @@ public class NodeUI extends StackPane{
         c.setFill(Paint.valueOf(color));
     }
     public void addEdgesStart(EdgeUI line) {
+        System.out.println("Adding a line: "+line);
         if(!edgesStart.contains(line)) edgesStart.add(line);
     }
     public void addEdgesEnd(EdgeUI line) {
+        System.out.println("Adding a line: "+line);
         if(!edgesEnd.contains(line)) edgesEnd.add(line);
     }
     public void setLineEndpoints(double x, double y){
-        for(Line l : edgesStart){
+        for(EdgeUI l : edgesStart){
             l.setStartX(x);
             l.setStartY(y);
         }
-        for(Line l : edgesEnd){
+        for(EdgeUI l : edgesEnd){
             l.setEndX(x);
             l.setEndY(y);
         }

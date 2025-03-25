@@ -8,7 +8,7 @@ import java.util.List;
 public class Node implements Serializable {
     double x,y;
     char ch;
-    transient NodeUI nodeUI;
+    NodeUI nodeUI;
     List<Edge> fromEdges;
     List<Edge> toEdges;
 
@@ -25,6 +25,7 @@ public class Node implements Serializable {
         this.y = y;
     }
     public void addFromEdge(Edge e){
+        System.out.println("I am now having an edge" + e.edgeUI);
         fromEdges.add(e);
     }
     public void addToEdge(Edge e){
@@ -36,9 +37,11 @@ public class Node implements Serializable {
     }
     public void setNodeUIEdges(){
         for(Edge e: fromEdges){
+            System.out.println("In a loop, adding an edge: " + e.edgeUI);
             nodeUI.addEdgesStart(e.edgeUI);
         }
         for(Edge e: toEdges){
+            System.out.println(e);
             nodeUI.addEdgesEnd(e.edgeUI);
         }
     }
