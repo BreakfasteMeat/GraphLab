@@ -24,8 +24,10 @@ public class HelloController {
     public Button btnAddEdge;
     private Scene scene;
     List<Node> nodes = new ArrayList<>();
+    List<Edge> edges = new ArrayList<>();
     List<NodeUI> nodeUIList = new ArrayList<>();
-    List<Line> lines = new ArrayList<>();
+    List<EdgeUI> edgeUIList = new ArrayList<>();
+
     double mouse_x, mouse_y;
 
     private boolean isDragging = false;
@@ -49,13 +51,18 @@ public class HelloController {
             selectNode(n);
             tfNodeName.setText(n.ch + "");
         } else {
-            selectedNode.addNeighbor(n);
-            n.addNeighbor(selectedNode);
+
             currentLine.setEndX(n.x + 20);
             currentLine.setEndY(n.y + 20);
-            lines.add(currentLine);
+            Edge edge = new Edge(currentLine.getStartX(),currentLine.getStartY(),currentLine.getEndX(),currentLine.getEndY(),selectedNode,n);
+            edges.add(edge);
+            selectedNode.addFromEdge(edge);
+            n.addToEdge(edge);
+
+
             isAddingEdge = false;
             currentLine = null;
+            selectedNode = null;
         }
 
         updateUIElements();
@@ -168,10 +175,16 @@ public class HelloController {
     }
     private void updateNodesUI(){
         nodeUIList.clear();
+        edgeUIList.clear();
 
         apPane.getChildren().clear();
 
-        apPane.getChildren().addAll(lines);
+        for (Edge edge : edges) {
+            EdgeUI edgeUI = new EdgeUI(edge);
+            edgeUIList.add(edgeUI);
+            apPane.getChildren().add(edgeUI);
+            edge.setEdgeUI(edgeUI);
+        }
         for (Node node : nodes) {
             System.out.println(node.x + "," + node.y);
             NodeUI nodeui = new NodeUI(node);
@@ -181,7 +194,10 @@ public class HelloController {
             nodeui.setLayoutY(node.y);
             apPane.getChildren().add(nodeui);
             setVertexListeners(nodeui);
+            node.setNodeUI(nodeui);
+            node.setNodeUIEdges();
         }
+
 
     }
     private void setVertexDesign(NodeUI nodeui, Node node){
@@ -213,6 +229,12 @@ public class HelloController {
 
         nodeUI.setLayoutX(nodeUI.n.x);
         nodeUI.setLayoutY(nodeUI.n.y);
+
+
+        nodeUI.n.setEdgesEndpoints(newX + 20, newY + 20);
+        nodeUI.setLineEndpoints(newX + 20, newY + 20);
+
+
 
         mouse_x = e.getSceneX();
         mouse_y = e.getSceneY();

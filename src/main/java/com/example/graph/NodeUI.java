@@ -13,8 +13,8 @@ public class NodeUI extends StackPane{
     Node n;
     Circle c;
 
-    List<Line> edgesStart;
-    List<Line> edgesEnd;
+    List<EdgeUI> edgesStart;
+    List<EdgeUI> edgesEnd;
 
     public NodeUI(Node n) {
         c = new Circle();
@@ -32,6 +32,12 @@ public class NodeUI extends StackPane{
     }
     public void setColor(String color) {
         c.setFill(Paint.valueOf(color));
+    }
+    public void addEdgesStart(EdgeUI line) {
+        if(!edgesStart.contains(line)) edgesStart.add(line);
+    }
+    public void addEdgesEnd(EdgeUI line) {
+        if(!edgesEnd.contains(line)) edgesEnd.add(line);
     }
     public void setLineEndpoints(double x, double y){
         for(Line l : edgesStart){
