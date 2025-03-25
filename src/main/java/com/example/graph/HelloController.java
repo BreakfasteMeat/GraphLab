@@ -2,12 +2,14 @@ package com.example.graph;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 
 import java.io.*;
@@ -20,6 +22,7 @@ public class HelloController {
     public TextField tfNodeName;
     public Button btnSetName;
     public Button btnAddEdge;
+    private Scene scene;
     List<Node> nodes = new ArrayList<>();
     List<NodeUI> nodeUIList = new ArrayList<>();
     double mouse_x, mouse_y;
@@ -42,11 +45,13 @@ public class HelloController {
 
         if(!isAddingEdge){
             selectNode(n);
+            tfNodeName.setText(n.ch + "");
         } else {
             selectedNode.addNeighbor(n);
             n.addNeighbor(selectedNode);
         }
 
+        updateUIElements();
         updateNodesUI();
     }
     private void selectNode(Node n){
@@ -54,6 +59,26 @@ public class HelloController {
             selectedNode = null;
         } else {
             selectedNode = n;
+        }
+    }
+
+    private void disableUIElements(){
+        tfNodeName.setDisable(true);
+        btnSetName.setDisable(true);
+        btnAddEdge.setDisable(true);
+        tfNodeName.clear();
+    }
+    private void enableUIElements(){
+        tfNodeName.setDisable(false);
+        btnSetName.setDisable(false);
+        btnAddEdge.setDisable(false);
+
+    }
+    private void updateUIElements(){
+        if(selectedNode != null){
+            enableUIElements();
+        } else {
+            disableUIElements();
         }
     }
 
@@ -67,8 +92,32 @@ public class HelloController {
             System.out.println(e.getClass());
             //e.printStackTrace();
         }
+        tfNodeName.textProperty().addListener((observable, oldValue, newValue) -> {
+           if(newValue.length() > 1){
+               tfNodeName.setText(oldValue);
+           }
+        });
+        apPane.sceneProperty().addListener((observable, oldValue, newValue) -> {
+           if(newValue != null){
+               scene = newValue;
 
+           }
+        });
+
+        btnSetName.setOnAction(this::onSetNameClicked);
+        btnAddEdge.setOnAction(this::onAddEdgeClicked);
+        btnAddEdge.setOnMouseClicked(this::onAddEdgeMouseClick);
+        disableUIElements();
         updateNodesUI();
+    }
+    private void onSetNameClicked(ActionEvent e){
+        String newName = tfNodeName.getText();
+        selectedNode.ch = newName.charAt(0);
+        updateNodesUI();
+    }
+    private void onAddEdgeMouseClick(MouseEvent e){
+        mouse_x = e.getScreenX();
+        mouse_y = e.getScreenY();
     }
     public void onSaveClicked(ActionEvent e){
         try{
@@ -80,6 +129,14 @@ public class HelloController {
         }
 
         updateNodesUI();
+    }
+    public void onAddEdgeClicked(ActionEvent e){
+        Line line = new Line();
+        line.setStartX(selectedNode.x);
+        line.setStartY(selectedNode.x);
+        line.setEndX(mouse_x);
+        line.setEndX(mouse_y);
+        apPane.getChildren().add(line);
     }
 
     public void onAddClicked(ActionEvent event) {
@@ -122,6 +179,13 @@ public class HelloController {
 
         double newX = nodeUI.getLayoutX() + (e.getSceneX() - mouse_x);
         double newY = nodeUI.getLayoutY() + (e.getSceneY() - mouse_y);
+
+        if(newX > 560) newX = 560;
+        if(newY > 360) newY = 360;
+
+        if(newX < 0) newX = 0;
+        if(newY < 0) newY = 0;
+
 
         nodeUI.n.setCoords(newX, newY);
 
