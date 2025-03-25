@@ -2,6 +2,7 @@ package com.example.graph;
 
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Node implements Serializable {
@@ -13,13 +14,15 @@ public class Node implements Serializable {
         x = (Math.random() * 500);
         y = (Math.random() * 300);
         ch = ((char) ((Math.random()*26) + 'A'));
+        neighbors = new ArrayList<Node>();
     }
     public void setCoords(double x, double y){
         this.x = x;
         this.y = y;
     }
     public void addNeighbor(Node n){
-        neighbors.add(n);
+        if(!neighbors.contains(n))
+            neighbors.add(n);
     }
 
 

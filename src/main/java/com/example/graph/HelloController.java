@@ -25,6 +25,7 @@ public class HelloController {
     private Scene scene;
     List<Node> nodes = new ArrayList<>();
     List<NodeUI> nodeUIList = new ArrayList<>();
+    List<Line> lines = new ArrayList<>();
     double mouse_x, mouse_y;
 
     private boolean isDragging = false;
@@ -50,6 +51,11 @@ public class HelloController {
         } else {
             selectedNode.addNeighbor(n);
             n.addNeighbor(selectedNode);
+            currentLine.setEndX(n.x + 20);
+            currentLine.setEndY(n.y + 20);
+            lines.add(currentLine);
+            isAddingEdge = false;
+            currentLine = null;
         }
 
         updateUIElements();
@@ -140,6 +146,7 @@ public class HelloController {
         updateNodesUI();
     }
     public void onAddEdgeClicked(ActionEvent e){
+        isAddingEdge = true;
         Line line = new Line();
         line.setStartX(selectedNode.x + 20);
         line.setStartY(selectedNode.y + 20);
@@ -161,7 +168,10 @@ public class HelloController {
     }
     private void updateNodesUI(){
         nodeUIList.clear();
+
         apPane.getChildren().clear();
+
+        apPane.getChildren().addAll(lines);
         for (Node node : nodes) {
             System.out.println(node.x + "," + node.y);
             NodeUI nodeui = new NodeUI(node);
