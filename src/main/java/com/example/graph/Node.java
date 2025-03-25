@@ -2,19 +2,24 @@ package com.example.graph;
 
 
 import java.io.Serializable;
+import java.util.List;
 
 public class Node implements Serializable {
-    int x,y;
+    double x,y;
     char ch;
+    List<Node> neighbors;
 
     public Node() {
-        x = (int)(Math.random() * 50);
-        y = (int)(Math.random() * 30);
+        x = (Math.random() * 500);
+        y = (Math.random() * 300);
         ch = ((char) ((Math.random()*26) + 'A'));
     }
-    public void setCoords(int x, int y){
+    public void setCoords(double x, double y){
         this.x = x;
         this.y = y;
+    }
+    public void addNeighbor(Node n){
+        neighbors.add(n);
     }
 
 

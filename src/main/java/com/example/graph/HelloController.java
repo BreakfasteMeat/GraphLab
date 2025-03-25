@@ -2,10 +2,9 @@ package com.example.graph;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
@@ -18,32 +17,46 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 public class HelloController {
+    public TextField tfNodeName;
+    public Button btnSetName;
+    public Button btnAddEdge;
     List<Node> nodes = new ArrayList<>();
     List<NodeUI> nodeUIList = new ArrayList<>();
+    double mouse_x, mouse_y;
+
+    private boolean isDragging = false;
+    private boolean isAddingEdge = false;
+    Node selectedNode = null;
+
 
     public AnchorPane apPane;
 
-    public void onVertexDrag(DragEvent e){
-        double x = e.getSceneX();
-        double y = e.getSceneY();
-        System.out.println(x + " " + y);
-        NodeUI nodeUI = (NodeUI)e.getSource();
-        nodeUI.n.setCoords((int)x,(int)y);
-        updateNodesUI();
-    }
+
 
     public void onVertexClicked(MouseEvent e){
+        if(isDragging){
+            isDragging = false;
+            return;
+        }
+        Node n = ((NodeUI)e.getSource()).n;
 
-        char ch = ((char) ((Math.random()*26) + 'A'));
-        Alert a = new Alert(Alert.AlertType.CONFIRMATION,"Would you like " + ch + "?", ButtonType.YES, ButtonType.NO);
-        a.showAndWait().ifPresent(buttonType -> {
-            if (buttonType == ButtonType.YES){
-                NodeUI nodeUI = (NodeUI) e.getSource();
-                nodeUI.n.ch = ch;
-            }
-        });
+        if(!isAddingEdge){
+            selectNode(n);
+        } else {
+            selectedNode.addNeighbor(n);
+            n.addNeighbor(selectedNode);
+        }
+
         updateNodesUI();
     }
+    private void selectNode(Node n){
+        if(n == selectedNode){
+            selectedNode = null;
+        } else {
+            selectedNode = n;
+        }
+    }
+
     @FXML
     void initialize(){
         try{
@@ -80,15 +93,50 @@ public class HelloController {
     }
     private void updateNodesUI(){
         nodeUIList.clear();
-        for(int i = 0;i < nodes.size();i++){
-            NodeUI nodeui = new NodeUI(nodes.get(i));
+        apPane.getChildren().clear();
+        for (Node node : nodes) {
+            System.out.println(node.x + "," + node.y);
+            NodeUI nodeui = new NodeUI(node);
             nodeUIList.add(nodeui);
-            AnchorPane.setRightAnchor(nodeUIList.get(i), (double) nodes.get(i).x * 10);
-            AnchorPane.setTopAnchor(nodeUIList.get(i), (double) nodes.get(i).y * 10);
-            apPane.getChildren().add(nodeUIList.get(i));
-            nodeui.setOnMouseClicked(this::onVertexClicked);
-            nodeui.setOnDragDone(this::onVertexDrag);
+            setVertexDesign(nodeui,node);
+            nodeui.setLayoutX(node.x);
+            nodeui.setLayoutY(node.y);
+            apPane.getChildren().add(nodeui);
+            setVertexListeners(nodeui);
         }
 
+    }
+    private void setVertexDesign(NodeUI nodeui, Node node){
+        if(selectedNode == node){
+            nodeui.setColor("#e8bf68");
+        }
+    }
+    private void setVertexListeners(NodeUI nodeUI){
+        nodeUI.setOnMouseClicked(this::onVertexClicked);
+        nodeUI.setOnMousePressed(this::onVertexMousePressed);
+        nodeUI.setOnMouseDragged(this::onVertexDragged);
+    }
+    public void onVertexDragged(MouseEvent e) {
+        isDragging = true;
+        NodeUI nodeUI = (NodeUI) e.getSource();
+
+        double newX = nodeUI.getLayoutX() + (e.getSceneX() - mouse_x);
+        double newY = nodeUI.getLayoutY() + (e.getSceneY() - mouse_y);
+
+        nodeUI.n.setCoords(newX, newY);
+
+
+        nodeUI.setLayoutX(nodeUI.n.x);
+        nodeUI.setLayoutY(nodeUI.n.y);
+
+        mouse_x = e.getSceneX();
+        mouse_y = e.getSceneY();
+
+        System.out.println("Node: (" + nodeUI.n.x +","+ nodeUI.n.y + ")" + " NodeUI: ( " + nodeUI.getLayoutX() +","+ nodeUI.getLayoutY() + ")");
+    }
+
+    private void onVertexMousePressed(MouseEvent mouseEvent) {
+        mouse_x = mouseEvent.getSceneX();
+        mouse_y = mouseEvent.getSceneY();
     }
 }
