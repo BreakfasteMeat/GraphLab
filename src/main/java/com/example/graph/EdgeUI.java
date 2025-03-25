@@ -4,7 +4,7 @@ import javafx.scene.shape.Line;
 
 import java.io.Serializable;
 
-public class EdgeUI extends Line implements Serializable {
+public class EdgeUI extends Line{
     Edge edge;
 
     public EdgeUI(Edge edge) {

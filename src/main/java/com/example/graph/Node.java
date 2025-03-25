@@ -8,7 +8,7 @@ import java.util.List;
 public class Node implements Serializable {
     double x,y;
     char ch;
-    NodeUI nodeUI;
+    transient NodeUI nodeUI;
     List<Edge> fromEdges;
     List<Edge> toEdges;
 
@@ -25,11 +25,19 @@ public class Node implements Serializable {
         this.y = y;
     }
     public void addFromEdge(Edge e){
-        System.out.println("I am now having an edge" + e.edgeUI);
         fromEdges.add(e);
     }
     public void addToEdge(Edge e){
         toEdges.add(e);
+    }
+
+    public void setEdgesSerialized(){
+        for(Edge e: fromEdges){
+            nodeUI.addEdgesStart(e.edgeUI);
+        }
+        for(Edge e: toEdges){
+            nodeUI.addEdgesEnd(e.edgeUI);
+        }
     }
 
     public void setNodeUI(NodeUI nodeUI) {
@@ -37,7 +45,6 @@ public class Node implements Serializable {
     }
     public void setNodeUIEdges(){
         for(Edge e: fromEdges){
-            System.out.println("In a loop, adding an edge: " + e.edgeUI);
             nodeUI.addEdgesStart(e.edgeUI);
         }
         for(Edge e: toEdges){
@@ -45,7 +52,18 @@ public class Node implements Serializable {
             nodeUI.addEdgesEnd(e.edgeUI);
         }
     }
+    public void printUIEdges() {
+        for (Edge e : fromEdges) {
+
+            System.out.println(e.edgeUI);
+        }
+        for (Edge e : toEdges) {
+            System.out.println(e.edgeUI);
+
+        }
+    }
     public void setEdgesEndpoints(double x, double y){
+        System.out.println("edges" + fromEdges + toEdges);
         for(Edge e: fromEdges){
             e.setStartCoord(x,y);
         }
@@ -54,7 +72,19 @@ public class Node implements Serializable {
         }
     }
 
+    public NodeUI getNodeUI() {
+        return nodeUI;
+    }
+
     public void setCh(char ch) {
         this.ch = ch;
+    }
+    public void setLists(){
+        if(fromEdges == null){
+            fromEdges = new ArrayList<>();
+        }
+        if(toEdges == null){
+            toEdges = new ArrayList<>();
+        }
     }
 }

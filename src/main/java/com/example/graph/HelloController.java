@@ -115,8 +115,15 @@ public class HelloController {
         } catch (ClassNotFoundException e) {
             System.out.println(e.getClass());
         }
-        System.out.println(nodes.size());
-        System.out.println(edges.size());
+        for (Node node : nodes) {
+            System.out.println("Node: " + node.ch + " UI: " + node.getNodeUI());
+        }
+        for (Edge edge : edges) {
+            System.out.println("Edge: " + edge + " UI: " + edge.getEdgeUI());
+        }
+
+
+
         tfNodeName.textProperty().addListener((observable, oldValue, newValue) -> {
            if(newValue.length() > 1){
                tfNodeName.setText(oldValue);
@@ -128,6 +135,7 @@ public class HelloController {
            }
             scene.setOnMouseMoved(this::onMouseMoved);
         });
+
 
 
         btnSetName.setOnAction(this::onSetNameClicked);
@@ -198,14 +206,18 @@ public class HelloController {
 
         apPane.getChildren().clear();
 
-        for (Edge edge : edges) {
-
-            EdgeUI edgeUI = new EdgeUI(edge);
-            edgeUIList.add(edgeUI);
-            apPane.getChildren().add(edgeUI);
-            System.out.println("Added: "+edgeUI);
-            edge.setEdgeUI(edgeUI);
-        }
+//        for (Edge edge : edges) {
+//
+//            EdgeUI edgeUI = new EdgeUI(edge);
+//            edgeUIList.add(edgeUI);
+//            apPane.getChildren().add(edgeUI);
+//            edge.setEdgeUI(edgeUI);
+//            edge.from.setLists();
+//            System.out.println(edge.from);
+//            edge.to.setLists();
+//            edge.from.addFromEdge(edge);
+//            edge.to.addToEdge(edge);
+//        }
         for (Node node : nodes) {
             NodeUI nodeui = new NodeUI(node);
             nodeUIList.add(nodeui);
@@ -214,8 +226,10 @@ public class HelloController {
             nodeui.setLayoutY(node.y);
             apPane.getChildren().add(nodeui);
             setVertexListeners(nodeui);
+            node.setLists();
             node.setNodeUI(nodeui);
             node.setNodeUIEdges();
+            node.printUIEdges();
         }
 
 
@@ -259,7 +273,6 @@ public class HelloController {
         mouse_x = e.getSceneX();
         mouse_y = e.getSceneY();
 
-        System.out.println("Node: (" + nodeUI.n.x +","+ nodeUI.n.y + ")" + " NodeUI: ( " + nodeUI.getLayoutX() +","+ nodeUI.getLayoutY() + ")");
     }
 
     private void onVertexMousePressed(MouseEvent mouseEvent) {
