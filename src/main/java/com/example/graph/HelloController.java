@@ -29,6 +29,7 @@ public class HelloController {
 
     private boolean isDragging = false;
     private boolean isAddingEdge = false;
+    private Line currentLine;
     Node selectedNode = null;
 
 
@@ -100,15 +101,23 @@ public class HelloController {
         apPane.sceneProperty().addListener((observable, oldValue, newValue) -> {
            if(newValue != null){
                scene = newValue;
-
            }
+            scene.setOnMouseMoved(this::onMouseMoved);
         });
+
 
         btnSetName.setOnAction(this::onSetNameClicked);
         btnAddEdge.setOnAction(this::onAddEdgeClicked);
         btnAddEdge.setOnMouseClicked(this::onAddEdgeMouseClick);
         disableUIElements();
         updateNodesUI();
+    }
+    private void onMouseMoved(MouseEvent e){
+        if(currentLine == null) return;
+        mouse_x = e.getSceneX();
+        mouse_y = e.getSceneY();
+        currentLine.setEndX(mouse_x - apPane.getLayoutX());
+        currentLine.setEndY(mouse_y - apPane.getLayoutY());
     }
     private void onSetNameClicked(ActionEvent e){
         String newName = tfNodeName.getText();
@@ -132,11 +141,13 @@ public class HelloController {
     }
     public void onAddEdgeClicked(ActionEvent e){
         Line line = new Line();
-        line.setStartX(selectedNode.x);
-        line.setStartY(selectedNode.x);
-        line.setEndX(mouse_x);
-        line.setEndX(mouse_y);
-        apPane.getChildren().add(line);
+        line.setStartX(selectedNode.x + 20);
+        line.setStartY(selectedNode.y + 20);
+
+        apPane.getChildren().add(0,line);
+        line.toBack();
+
+        currentLine = line;
     }
 
     public void onAddClicked(ActionEvent event) {
