@@ -18,6 +18,15 @@ public class Edge implements Serializable {
         this.to = to;
     }
 
+    public Edge(Node to, Node from) {
+        this.to = to;
+        this.from = from;
+        start_x = from.x + 20;
+        start_y = from.y + 20;
+        end_x = to.x + 20;
+        end_y = to.y + 20;
+    }
+
     public void setEdgeUI(EdgeUI edgeUI) {
         this.edgeUI = edgeUI;
     }
@@ -33,5 +42,13 @@ public class Edge implements Serializable {
 
     public EdgeUI getEdgeUI() {
         return edgeUI;
+    }
+
+    @Override
+    public String toString() {
+        return "Edge{" +
+                ", start=(" + start_x + ", " + start_y + ")" +
+                ", end=(" + end_x + ", " + end_y + ")" +
+                '}';
     }
 }

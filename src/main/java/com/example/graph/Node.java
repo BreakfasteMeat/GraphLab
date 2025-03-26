@@ -48,7 +48,6 @@ public class Node implements Serializable {
             nodeUI.addEdgesStart(e.edgeUI);
         }
         for(Edge e: toEdges){
-            System.out.println(e);
             nodeUI.addEdgesEnd(e.edgeUI);
         }
     }
@@ -63,7 +62,6 @@ public class Node implements Serializable {
         }
     }
     public void setEdgesEndpoints(double x, double y){
-        System.out.println("edges" + fromEdges + toEdges);
         for(Edge e: fromEdges){
             e.setStartCoord(x,y);
         }

@@ -54,7 +54,9 @@ public class HelloController {
 
             currentLine.setEndX(n.x + 20);
             currentLine.setEndY(n.y + 20);
-            Edge edge = new Edge(currentLine.getStartX(),currentLine.getStartY(),currentLine.getEndX(),currentLine.getEndY(),selectedNode,n);
+            //Edge edge = new Edge(currentLine.getStartX(),currentLine.getStartY(),currentLine.getEndX(),currentLine.getEndY(),selectedNode,n);
+            Edge edge = new Edge(selectedNode,n);
+            System.out.println(edge);
             edges.add(edge);
             selectedNode.addFromEdge(edge);
             n.addToEdge(edge);
@@ -206,20 +208,22 @@ public class HelloController {
 
         apPane.getChildren().clear();
 
-//        for (Edge edge : edges) {
-//
-//            EdgeUI edgeUI = new EdgeUI(edge);
-//            edgeUIList.add(edgeUI);
-//            apPane.getChildren().add(edgeUI);
-//            edge.setEdgeUI(edgeUI);
-//            edge.from.setLists();
-//            System.out.println(edge.from);
-//            edge.to.setLists();
-//            edge.from.addFromEdge(edge);
-//            edge.to.addToEdge(edge);
-//        }
+
         for (Node node : nodes) {
             NodeUI nodeui = new NodeUI(node);
+
+            for(Edge edge : node.fromEdges){
+                EdgeUI edgeui = new EdgeUI(edge);
+                edgeUIList.add(edgeui);
+                edgeui.setStartX(edge.start_x);
+                edgeui.setStartY(edge.start_y);
+                edgeui.setEndX(edge.end_x);
+                edgeui.setEndY(edge.end_y);
+                apPane.getChildren().add(edgeui);
+                edgeui.toBack();
+                edge.setEdgeUI(edgeui);
+                System.out.println("Rendered edge connected from node " + edge.from.ch + " to node " + edge.to.ch);
+            }
             nodeUIList.add(nodeui);
             setVertexDesign(nodeui,node);
             nodeui.setLayoutX(node.x);
@@ -229,7 +233,8 @@ public class HelloController {
             node.setLists();
             node.setNodeUI(nodeui);
             node.setNodeUIEdges();
-            node.printUIEdges();
+
+            //node.printUIEdges();
         }
 
 
@@ -265,8 +270,22 @@ public class HelloController {
         nodeUI.setLayoutY(nodeUI.n.y);
 
 
-        nodeUI.n.setEdgesEndpoints(newX + 20, newY + 20);
-        nodeUI.setLineEndpoints(newX + 20, newY + 20);
+
+        //nodeUI.n.setEdgesEndpoints(newX + 20, newY + 20);
+
+        //nodeUI.setLineEndpoints(newX + 20, newY + 20);
+
+        for(Edge edge : nodeUI.n.toEdges){
+            edge.setStartCoord(nodeUI.n.x + 20,nodeUI.n.y + 20);
+            edge.edgeUI.setStartX(edge.start_x);
+            edge.edgeUI.setStartY(edge.start_y);
+        }
+        for(Edge edge : nodeUI.n.fromEdges){
+            edge.setEndCoord(nodeUI.n.x + 20,nodeUI.n.y + 20);
+            edge.edgeUI.setEndX(edge.end_x);
+            edge.edgeUI.setEndY(edge.end_y);
+        }
+
 
 
 
