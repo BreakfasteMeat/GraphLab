@@ -9,24 +9,25 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class HelloController {
     public TextField tfNodeName;
     public Button btnSetName;
     public Button btnAddEdge;
+    public Button btnRemoveNode;
+    public Button btnRemoveEdge;
+    public Button btnAddEdgeAll;
     private Scene scene;
-    List<Node> nodes = new ArrayList<>();
-    List<Edge> edges = new ArrayList<>();
-    List<NodeUI> nodeUIList = new ArrayList<>();
-    List<EdgeUI> edgeUIList = new ArrayList<>();
+    List<Node> nodes = new LinkedList<>();
+    List<NodeUI> nodeUIList = new LinkedList<>();
+    List<EdgeUI> edgeUIList = new LinkedList<>();
 
     double mouse_x, mouse_y;
 
@@ -34,11 +35,36 @@ public class HelloController {
     private boolean isAddingEdge = false;
     private Line currentLine;
     Node selectedNode = null;
+    Edge selectedEdge = null;
 
 
     public AnchorPane apPane;
 
+    public void onEdgeClicked(MouseEvent e){
+        if(isDragging){
+            isDragging = false;
+            return;
+        }
+        Edge edge = ((EdgeUI) e.getSource()).edge;
+        System.out.println("Clicked: " + edge);
+        if(!isAddingEdge){
+            selectEdge(edge);
+        }
+        updateNodesUI();
+    }
 
+    private void selectEdge(Edge edge){
+        if(edge == selectedEdge){
+            selectedEdge = null;
+            btnRemoveEdge.setDisable(true);
+        } else {
+            selectedNode = null;
+            selectedEdge = edge;
+            btnRemoveEdge.setDisable(false);
+        }
+        updateUIElements();
+        updateNodesUI();
+    }
 
     public void onVertexClicked(MouseEvent e){
         if(isDragging){
@@ -54,13 +80,11 @@ public class HelloController {
 
             currentLine.setEndX(n.x + 20);
             currentLine.setEndY(n.y + 20);
-            //Edge edge = new Edge(currentLine.getStartX(),currentLine.getStartY(),currentLine.getEndX(),currentLine.getEndY(),selectedNode,n);
-            Edge edge = new Edge(selectedNode,n);
-            System.out.println(edge);
-            edges.add(edge);
-            selectedNode.addFromEdge(edge);
-            n.addToEdge(edge);
+            Edge edge = new Edge(n,selectedNode);
 
+            //selectedNode.addFromEdge(edge);
+            //n.addToEdge(edge);
+            addEdge(selectedNode,n);
 
             isAddingEdge = false;
             currentLine = null;
@@ -70,10 +94,21 @@ public class HelloController {
         updateUIElements();
         updateNodesUI();
     }
+    private void addEdge(Node nodeFrom, Node nodeTo){
+
+        Edge edge = new Edge(nodeTo,nodeFrom);
+        if(nodeFrom.hasEdge(edge)){
+            return;
+        }
+        nodeFrom.addFromEdge(edge);
+        nodeTo.addToEdge(edge);
+
+    }
     private void selectNode(Node n){
         if(n == selectedNode){
             selectedNode = null;
         } else {
+            selectedEdge = null;
             selectedNode = n;
         }
     }
@@ -82,19 +117,25 @@ public class HelloController {
         tfNodeName.setDisable(true);
         btnSetName.setDisable(true);
         btnAddEdge.setDisable(true);
+        btnRemoveNode.setDisable(true);
+        btnAddEdgeAll.setDisable(true);
         tfNodeName.clear();
     }
     private void enableUIElements(){
         tfNodeName.setDisable(false);
         btnSetName.setDisable(false);
         btnAddEdge.setDisable(false);
-
+        btnRemoveNode.setDisable(false);
+        btnAddEdgeAll.setDisable(false);
     }
     private void updateUIElements(){
         if(selectedNode != null){
             enableUIElements();
         } else {
             disableUIElements();
+        }
+        if(selectedEdge == null){
+            btnRemoveEdge.setDisable(true);
         }
     }
 
@@ -106,22 +147,10 @@ public class HelloController {
             ois.close();
         } catch (IOException | ClassNotFoundException e){
             System.out.println(e.getClass());
-            //e.printStackTrace();
-        }
-        try{
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream("edges.txt"));
-            edges = (ArrayList<Edge>)(ois.readObject());
-            ois.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            System.out.println(e.getClass());
+
         }
         for (Node node : nodes) {
             System.out.println("Node: " + node.ch + " UI: " + node.getNodeUI());
-        }
-        for (Edge edge : edges) {
-            System.out.println("Edge: " + edge + " UI: " + edge.getEdgeUI());
         }
 
 
@@ -139,11 +168,19 @@ public class HelloController {
         });
 
 
-
+        btnRemoveNode.setOnAction(this::onRemoveNodeClicked);
         btnSetName.setOnAction(this::onSetNameClicked);
         btnAddEdge.setOnAction(this::onAddEdgeClicked);
         btnAddEdge.setOnMouseClicked(this::onAddEdgeMouseClick);
+        btnRemoveEdge.setDisable(true);
+
         disableUIElements();
+        updateNodesUI();
+    }
+    private void onRemoveNodeClicked(ActionEvent e){
+        nodes.remove(selectedNode);
+        selectedNode = null;
+        updateUIElements();
         updateNodesUI();
     }
     private void onMouseMoved(MouseEvent e){
@@ -170,19 +207,13 @@ public class HelloController {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-        try{
-            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("edges.txt"));
-            oos.writeObject(edges);
-            oos.close();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
 
         updateNodesUI();
     }
     public void onAddEdgeClicked(ActionEvent e){
         isAddingEdge = true;
         Line line = new Line();
+        line.setStrokeWidth(3.0);
         line.setStartX(selectedNode.x + 20);
         line.setStartY(selectedNode.y + 20);
 
@@ -191,6 +222,15 @@ public class HelloController {
 
         currentLine = line;
     }
+    public void onAddEdgeAllClicked(ActionEvent e){
+        Node n = selectedNode;
+        for(Node node : nodes){
+            if(node != n){
+                addEdge(n,node);
+            }
+        }
+        updateNodesUI();
+    }
 
     public void onAddClicked(ActionEvent event) {
         nodes.add(new Node());
@@ -198,10 +238,13 @@ public class HelloController {
     }
     public void onClearClicked(ActionEvent event){
         nodes.clear();
-        edges.clear();
         apPane.getChildren().clear();
+        selectedEdge = null;
+        selectedNode = null;
+        updateUIElements();
         updateNodesUI();
     }
+
     private void updateNodesUI(){
         nodeUIList.clear();
         edgeUIList.clear();
@@ -210,10 +253,19 @@ public class HelloController {
 
 
         for (Node node : nodes) {
-            NodeUI nodeui = new NodeUI(node);
 
-            for(Edge edge : node.fromEdges){
+            NodeUI nodeui = new NodeUI(node);
+            Iterator i = node.fromEdges.iterator();
+
+            while(i.hasNext()){
+                Edge edge = (Edge) i.next();
+                if(!nodes.contains(edge.to)){
+                    i.remove();
+                    continue;
+                }
                 EdgeUI edgeui = new EdgeUI(edge);
+                edgeui.setOnMouseClicked(this::onEdgeClicked);
+                setEdgeDesign(edge,edgeui);
                 edgeUIList.add(edgeui);
                 edgeui.setStartX(edge.start_x);
                 edgeui.setStartY(edge.start_y);
@@ -222,7 +274,7 @@ public class HelloController {
                 apPane.getChildren().add(edgeui);
                 edgeui.toBack();
                 edge.setEdgeUI(edgeui);
-                System.out.println("Rendered edge connected from node " + edge.from.ch + " to node " + edge.to.ch);
+                //System.out.println("Rendered edge connected from node " + edge.from.ch + " to node " + edge.to.ch);
             }
             nodeUIList.add(nodeui);
             setVertexDesign(nodeui,node);
@@ -233,8 +285,6 @@ public class HelloController {
             node.setLists();
             node.setNodeUI(nodeui);
             node.setNodeUIEdges();
-
-            //node.printUIEdges();
         }
 
 
@@ -243,6 +293,19 @@ public class HelloController {
         if(selectedNode == node){
             nodeui.setColor("#e8bf68");
         }
+    }
+
+    private void setEdgeDesign(Edge edge, EdgeUI edgeui){
+        if(edge == selectedEdge){
+            edgeui.setColor("#e8bf68");
+        }
+    }
+    public void onDeleteEdgeClicked(ActionEvent e){
+        Edge edge = selectedEdge;
+        edge.to.toEdges.remove(edge);
+        edge.from.fromEdges.remove(edge);
+        btnRemoveEdge.setDisable(true);
+        updateNodesUI();
     }
     private void setVertexListeners(NodeUI nodeUI){
         nodeUI.setOnMouseClicked(this::onVertexClicked);
@@ -271,16 +334,12 @@ public class HelloController {
 
 
 
-        //nodeUI.n.setEdgesEndpoints(newX + 20, newY + 20);
-
-        //nodeUI.setLineEndpoints(newX + 20, newY + 20);
-
-        for(Edge edge : nodeUI.n.toEdges){
+        for(Edge edge : nodeUI.n.fromEdges){
             edge.setStartCoord(nodeUI.n.x + 20,nodeUI.n.y + 20);
             edge.edgeUI.setStartX(edge.start_x);
             edge.edgeUI.setStartY(edge.start_y);
         }
-        for(Edge edge : nodeUI.n.fromEdges){
+        for(Edge edge : nodeUI.n.toEdges){
             edge.setEndCoord(nodeUI.n.x + 20,nodeUI.n.y + 20);
             edge.edgeUI.setEndX(edge.end_x);
             edge.edgeUI.setEndY(edge.end_y);

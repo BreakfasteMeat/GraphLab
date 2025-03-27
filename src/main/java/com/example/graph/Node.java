@@ -3,6 +3,7 @@ package com.example.graph;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Node implements Serializable {
@@ -13,12 +14,25 @@ public class Node implements Serializable {
     List<Edge> toEdges;
 
 
+    public boolean hasEdge(Edge e){
+        for(Edge e1 : fromEdges){
+            if(e1.isEqualTo(e)){
+                return true;
+            }
+        }
+        for(Edge e2 : toEdges){
+            if(e2.isEqualTo(e)){
+                return true;
+            }
+        }
+        return false;
+    }
     public Node() {
         x = (Math.random() * 500);
         y = (Math.random() * 300);
         ch = ((char) ((Math.random()*26) + 'A'));
-        fromEdges = new ArrayList<>();
-        toEdges = new ArrayList<>();
+        fromEdges = new LinkedList<>();
+        toEdges = new LinkedList<>();
     }
     public void setCoords(double x, double y){
         this.x = x;

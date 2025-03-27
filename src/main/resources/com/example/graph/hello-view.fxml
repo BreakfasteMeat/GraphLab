@@ -16,7 +16,7 @@
       <AnchorPane fx:id="apPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-border-color: #000000;" />
       <HBox alignment="CENTER" style="-fx-background-color: #DDDDDD; -fx-border-color: #000000;">
          <children>
-            <GridPane>
+            <GridPane hgap="5.0" vgap="5.0">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -34,15 +34,21 @@
                <children>
                   <TextField fx:id="tfNodeName" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                   <Label text="Node name: " GridPane.halignment="RIGHT" GridPane.rowIndex="1" />
-                  <Button fx:id="btnSetName" mnemonicParsing="false" text="Set Name" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                  <Button fx:id="btnAddEdge" mnemonicParsing="false" text="Add Edge" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                  <Label text="Node Editor" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+                  <Button fx:id="btnSetName" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Set Name" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                  <Button fx:id="btnAddEdge" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Add Edge" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" />
+                  <Label GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+                  <Button fx:id="btnRemoveEdge" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onDeleteEdgeClicked" text="Remove Edge" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                  <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onAddClicked" text="Add Node" GridPane.rowIndex="2" />
+                  <Button fx:id="btnRemoveNode" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onAddClicked" text="Remove Node" GridPane.rowIndex="3" />
+                  <Button fx:id="btnAddEdgeAll" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onAddEdgeAllClicked" text="Add Edge to All" GridPane.columnIndex="2" GridPane.rowIndex="2" />
                </children>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
             </GridPane>
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                <children>
                   <Button mnemonicParsing="false" onAction="#onSaveClicked" text="Save" />
-                  <Button mnemonicParsing="false" onAction="#onAddClicked" text="Add" />
                   <Button mnemonicParsing="false" onAction="#onClearClicked" text="Clear" />
                </children>
             </HBox>

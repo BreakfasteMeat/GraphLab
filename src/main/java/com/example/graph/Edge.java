@@ -51,4 +51,8 @@ public class Edge implements Serializable {
                 ", end=(" + end_x + ", " + end_y + ")" +
                 '}';
     }
+
+    public boolean isEqualTo(Edge edge) {
+        return (this.from == edge.from && this.to == edge.to) || (this.from == edge.to && this.to == edge.from);
+    }
 }

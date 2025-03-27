@@ -22,6 +22,7 @@ public class NodeUI extends StackPane{
         c = new Circle();
         c.setFill(Paint.valueOf("#68e2e8"));
         c.setStroke(Paint.valueOf("BLACK"));
+        c.setStrokeWidth(3.0);
         c.setRadius(20);
         edgesStart = new ArrayList<>();
         edgesEnd = new ArrayList<>();
