@@ -21,10 +21,10 @@ public class Edge implements Serializable {
     public Edge(Node to, Node from) {
         this.to = to;
         this.from = from;
-        start_x = from.x + 20;
-        start_y = from.y + 20;
-        end_x = to.x + 20;
-        end_y = to.y + 20;
+        start_x = from.x + AppSettings.nodeRadius;
+        start_y = from.y + AppSettings.nodeRadius;
+        end_x = to.x + AppSettings.nodeRadius;
+        end_y = to.y + AppSettings.nodeRadius;
     }
 
     public void setEdgeUI(EdgeUI edgeUI) {

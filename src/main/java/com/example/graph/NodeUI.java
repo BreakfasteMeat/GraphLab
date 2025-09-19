@@ -22,16 +22,24 @@ public class NodeUI extends StackPane{
         c = new Circle();
         c.setFill(Paint.valueOf("#68e2e8"));
         c.setStroke(Paint.valueOf("BLACK"));
-        c.setStrokeWidth(3.0);
-        c.setRadius(20);
+        c.setStrokeWidth(1.0);
+        c.setRadius(AppSettings.nodeRadius);
         edgesStart = new ArrayList<>();
         edgesEnd = new ArrayList<>();
 
         getChildren().add(c);
-        getChildren().add(new Text((n.ch + "")));
+        getChildren().add(new Text((n.name + "")));
         this.n = n;
 
+    }
 
+    public void setNormalColor(){
+        c.setFill(Paint.valueOf("#68e2e8"));
+        c.setStroke(Paint.valueOf("BLACK"));
+    }
+    public void setVisitedColor(){
+        c.setFill(Paint.valueOf("#e86969"));
+        c.setStroke(Paint.valueOf("RED"));
     }
     public void setColor(String color) {
         c.setFill(Paint.valueOf(color));
@@ -54,6 +62,8 @@ public class NodeUI extends StackPane{
             l.setEndY(y);
         }
     }
+
+
 
 
 }

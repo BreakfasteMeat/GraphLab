@@ -1,5 +1,8 @@
 package com.example.graph;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.SequentialTransition;
+import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -12,6 +15,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 
 import java.io.*;
 import java.util.*;
@@ -24,10 +28,14 @@ public class HelloController {
     public Button btnRemoveNode;
     public Button btnRemoveEdge;
     public Button btnAddEdgeAll;
+    public ComboBox<String> originNodeComboBox;
     private Scene scene;
     List<Node> nodes = new LinkedList<>();
     List<NodeUI> nodeUIList = new LinkedList<>();
     List<EdgeUI> edgeUIList = new LinkedList<>();
+
+    private Node originNode;
+
 
     double mouse_x, mouse_y;
 
@@ -36,6 +44,8 @@ public class HelloController {
     private Line currentLine;
     Node selectedNode = null;
     Edge selectedEdge = null;
+
+    Search search;
 
 
     public AnchorPane apPane;
@@ -75,11 +85,11 @@ public class HelloController {
 
         if(!isAddingEdge){
             selectNode(n);
-            tfNodeName.setText(n.ch + "");
+            tfNodeName.setText(n.name + "");
         } else {
 
-            currentLine.setEndX(n.x + 20);
-            currentLine.setEndY(n.y + 20);
+            currentLine.setEndX(n.x + AppSettings.nodeRadius);
+            currentLine.setEndY(n.y + AppSettings.nodeRadius);
             Edge edge = new Edge(n,selectedNode);
 
             //selectedNode.addFromEdge(edge);
@@ -98,6 +108,7 @@ public class HelloController {
 
         Edge edge = new Edge(nodeTo,nodeFrom);
         if(nodeFrom.hasEdge(edge)){
+            System.out.println("Already has edge");
             return;
         }
         nodeFrom.addFromEdge(edge);
@@ -121,6 +132,10 @@ public class HelloController {
         btnAddEdgeAll.setDisable(true);
         tfNodeName.clear();
     }
+
+    public void onOriginNodeSelected(ActionEvent e){
+        originNode = nodes.get(((ComboBox)e.getSource()).getSelectionModel().getSelectedIndex());
+    }
     private void enableUIElements(){
         tfNodeName.setDisable(false);
         btnSetName.setDisable(false);
@@ -137,10 +152,71 @@ public class HelloController {
         if(selectedEdge == null){
             btnRemoveEdge.setDisable(true);
         }
+        if(!nodes.isEmpty() && originNodeComboBox.isDisabled()){
+            originNodeComboBox.getItems().clear();
+            originNodeComboBox.setDisable(false);
+            originNodeComboBox.getItems().setAll(
+                    nodes
+                            .stream()
+                            .map(n -> n.name)
+                            .toList()
+
+            );
+
+        } else if(nodes.isEmpty()) {
+            originNodeComboBox.setDisable(true);
+        }
+    }
+
+    public void onBFSClicked(){
+        search = new BreadthFirstSearch();
+        performSearch();
+    }
+    public void onDFSClicked(){
+        search = new DepthFirstSearch();
+        performSearch();
+    }
+
+    private void performSearch(){
+        if(originNode == null){
+            throw new RuntimeException("Origin node is null");
+        }
+        List<Tuple<Edge,Node>> list = search.search(originNode);
+        SequentialTransition st = new SequentialTransition();
+        for(Tuple<Edge,Node> t: list){
+            Timeline visit_edge = new Timeline(
+                    new KeyFrame(
+                            Duration.seconds(0.3),
+                            e -> {
+                                if(t.first() != null){
+                                    t.first().edgeUI.setVisitedColor();
+                                }
+                            }
+                    )
+            );
+            Timeline visit = new Timeline(
+
+                    new KeyFrame(
+                            Duration.seconds(0.3),
+                            e -> {
+                                t.second().nodeUI.setVisitedColor();
+                            }
+                    )
+            );
+            st.getChildren().add(visit_edge);
+            st.getChildren().add(visit);
+        }
+        Timeline x = new Timeline(
+                new KeyFrame(Duration.seconds(0.3), e -> updateNodesUI())
+        );
+        st.getChildren().add(x);
+        st.play();
     }
 
     @FXML
     void initialize(){
+
+
         try{
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream("nodes.txt"));
             nodes = (ArrayList<Node>) (ois.readObject());
@@ -150,8 +226,10 @@ public class HelloController {
 
         }
         for (Node node : nodes) {
-            System.out.println("Node: " + node.ch + " UI: " + node.getNodeUI());
+            System.out.println("Node: " + node.name + " UI: " + node.getNodeUI());
         }
+
+
 
 
 
@@ -174,6 +252,8 @@ public class HelloController {
         btnAddEdge.setOnMouseClicked(this::onAddEdgeMouseClick);
         btnRemoveEdge.setDisable(true);
 
+        originNodeComboBox.setDisable(true);
+
         disableUIElements();
         updateNodesUI();
     }
@@ -192,7 +272,7 @@ public class HelloController {
     }
     private void onSetNameClicked(ActionEvent e){
         String newName = tfNodeName.getText();
-        selectedNode.ch = newName.charAt(0);
+        selectedNode.name = newName;
         updateNodesUI();
     }
     private void onAddEdgeMouseClick(MouseEvent e){
@@ -213,9 +293,9 @@ public class HelloController {
     public void onAddEdgeClicked(ActionEvent e){
         isAddingEdge = true;
         Line line = new Line();
-        line.setStrokeWidth(3.0);
-        line.setStartX(selectedNode.x + 20);
-        line.setStartY(selectedNode.y + 20);
+        line.setStrokeWidth(AppSettings.lineWidth);
+        line.setStartX(selectedNode.x + AppSettings.nodeRadius);
+        line.setStartY(selectedNode.y + AppSettings.nodeRadius);
 
         apPane.getChildren().add(0,line);
         line.toBack();
@@ -233,8 +313,10 @@ public class HelloController {
     }
 
     public void onAddClicked(ActionEvent event) {
-        nodes.add(new Node());
+        Node newNode = new Node();
+        nodes.add(newNode);
         updateNodesUI();
+        updateUIElements();
     }
     public void onClearClicked(ActionEvent event){
         nodes.clear();
@@ -244,10 +326,10 @@ public class HelloController {
         updateUIElements();
         updateNodesUI();
     }
-
     private void updateNodesUI(){
         nodeUIList.clear();
         edgeUIList.clear();
+
 
         apPane.getChildren().clear();
 
@@ -263,6 +345,7 @@ public class HelloController {
                     i.remove();
                     continue;
                 }
+
                 EdgeUI edgeui = new EdgeUI(edge);
                 edgeui.setOnMouseClicked(this::onEdgeClicked);
                 setEdgeDesign(edge,edgeui);
@@ -319,8 +402,8 @@ public class HelloController {
         double newX = nodeUI.getLayoutX() + (e.getSceneX() - mouse_x);
         double newY = nodeUI.getLayoutY() + (e.getSceneY() - mouse_y);
 
-        if(newX > 560) newX = 560;
-        if(newY > 360) newY = 360;
+        if(newX > apPane.getWidth() - (AppSettings.nodeRadius * 2)) newX = apPane.getWidth() - (AppSettings.nodeRadius * 2);
+        if(newY > apPane.getHeight() - (AppSettings.nodeRadius * 2)) newY = apPane.getHeight() - (AppSettings.nodeRadius * 2);
 
         if(newX < 0) newX = 0;
         if(newY < 0) newY = 0;
@@ -335,19 +418,15 @@ public class HelloController {
 
 
         for(Edge edge : nodeUI.n.fromEdges){
-            edge.setStartCoord(nodeUI.n.x + 20,nodeUI.n.y + 20);
+            edge.setStartCoord(nodeUI.n.x + AppSettings.nodeRadius,nodeUI.n.y + AppSettings.nodeRadius);
             edge.edgeUI.setStartX(edge.start_x);
             edge.edgeUI.setStartY(edge.start_y);
         }
         for(Edge edge : nodeUI.n.toEdges){
-            edge.setEndCoord(nodeUI.n.x + 20,nodeUI.n.y + 20);
+            edge.setEndCoord(nodeUI.n.x + AppSettings.nodeRadius,nodeUI.n.y + AppSettings.nodeRadius);
             edge.edgeUI.setEndX(edge.end_x);
             edge.edgeUI.setEndY(edge.end_y);
         }
-
-
-
-
         mouse_x = e.getSceneX();
         mouse_y = e.getSceneY();
 

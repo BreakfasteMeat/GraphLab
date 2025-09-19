@@ -1,0 +1,5 @@
+.rounded-button {
+    -fx-border-color: #333333;
+    -fx-background-color: #EEEEEE;
+    -fx-border-radius: 20px;
+}

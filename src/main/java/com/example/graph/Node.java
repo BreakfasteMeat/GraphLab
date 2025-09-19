@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Node implements Serializable {
+public class Node implements Serializable, Comparable<Node> {
     double x,y;
-    char ch;
+    String name;
     transient NodeUI nodeUI;
     List<Edge> fromEdges;
     List<Edge> toEdges;
@@ -30,10 +30,12 @@ public class Node implements Serializable {
     public Node() {
         x = (Math.random() * 500);
         y = (Math.random() * 300);
-        ch = ((char) ((Math.random()*26) + 'A'));
+        name = ((char) ((Math.random()*26) + 'A')) + "" + ((char) ((Math.random()*26) + 'A'));
         fromEdges = new LinkedList<>();
         toEdges = new LinkedList<>();
     }
+
+
     public void setCoords(double x, double y){
         this.x = x;
         this.y = y;
@@ -88,9 +90,6 @@ public class Node implements Serializable {
         return nodeUI;
     }
 
-    public void setCh(char ch) {
-        this.ch = ch;
-    }
     public void setLists(){
         if(fromEdges == null){
             fromEdges = new ArrayList<>();
@@ -98,5 +97,10 @@ public class Node implements Serializable {
         if(toEdges == null){
             toEdges = new ArrayList<>();
         }
+    }
+
+    @Override
+    public int compareTo(Node o) {
+        return this.name.compareTo(o.name);
     }
 }
